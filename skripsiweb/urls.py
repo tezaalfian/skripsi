@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from projects import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", views.result, name="result"),
+    path("import", views.importExcel, name="importExcel"),
+    path("input", views.inputData, name="inputData"),
 ]

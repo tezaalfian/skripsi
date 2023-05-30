@@ -31,6 +31,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "pandas",
+    # 'statsmodels',
+    # 'sklearn',
+    # 'matplotlib',
+    # 'numpy',
     "projects.apps.ProjectsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -55,7 +60,9 @@ ROOT_URLCONF = "skripsiweb.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / "templates"
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
