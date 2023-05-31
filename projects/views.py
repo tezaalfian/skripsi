@@ -127,3 +127,14 @@ def inputData(request):
         messages.success(request, "Data berhasil ditambahkan")
         return redirect('/input')
     return render(request, "input.html")
+
+def listData(request):
+    data = Claim.objects.all().order_by('-id')
+    return render(request, "list.html", {
+        "datas": data
+    })
+
+def deleteData(request, id):
+    Claim.objects.filter(id=id).delete()
+    messages.success(request, "Data berhasil dihapus")
+    return redirect('/list')

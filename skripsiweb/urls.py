@@ -23,4 +23,6 @@ urlpatterns = [
     path("", views.result, name="result"),
     path("import", views.importExcel, name="importExcel"),
     path("input", views.inputData, name="inputData"),
+    path("list", views.listData, name="listData"),
+    path("delete/<int:id>", views.deleteData, name="deleteData"),
 ]

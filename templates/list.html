@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block css %}
+<link rel="stylesheet" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+<script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#table').DataTable(
+            {
+                "order": [[0, "desc"]]
+            }
+        );
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <h2>Daftar Klaim</h2>
+        <div class="table-responsive">
+            <table id="table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tanggal</th>
+                        <th>Besar Klaim</th>
+                        <th>#</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in datas %}
+                    <tr>
+                        <td>{{ data.id }}</td>
+                        <td>{{ data.date }}</td>
+                        <td>{{ data.amount }}</td>
+                        <td>
+                            <a href="/delete/{{ data.id }}" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
