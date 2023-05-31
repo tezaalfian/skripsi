@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h5 class="card-header">Import Data Excel</h5>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <form action="/input" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Tanggal</label>
+                        <input class="form-control" type="date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Besar klaim</label>
+                        <input class="form-control" type="number" name="amount" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

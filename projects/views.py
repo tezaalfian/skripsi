@@ -29,4 +29,10 @@ def importExcel(request):
     return render(request, "import.html")
 
 def inputData(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    if request.method == "POST":
+        date = request.POST['date']
+        amount = request.POST['amount']
+        Claim.objects.create(date=date, amount=amount)
+        messages.success(request, "Data berhasil ditambahkan")
+        return redirect('/input')
+    return render(request, "input.html")
