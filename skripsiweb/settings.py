@@ -32,10 +32,10 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "pandas",
-    # 'statsmodels',
-    # 'sklearn',
-    # 'matplotlib',
-    # 'numpy',
+    'statsmodels',
+    'sklearn',
+    'matplotlib',
+    'numpy',
     "projects.apps.ProjectsConfig",
     "django.contrib.admin",
     "django.contrib.auth",

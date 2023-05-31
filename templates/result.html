@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-9 mb-3">
+        <h2>Grafik Hasil Forecast</h2>
+        <img src="data:image/png;base64, {{graph_test|safe}}" alt="" id="img" class="img-thumbnail">
+    </div>
+    <div class="col-md-3">
+        <h2>Akurasi</h2>
+        <table class="table table-bordered mb-3">
+            <tr>
+                <th>MAPE ARIMA</th>
+                <td>{{ arima_mape }}%</td>
+            </tr>
+            <tr>
+                <th>MAPE Single Exponential Smoothing</th>
+                <td>{{ ses_mape }}%</td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-md-7">
+        <h2>Testing besar klaim 2 bulan terakhir</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered mb-3 align-middle text-center">
+                <tr>
+                    <th rowspan="2">Minggu</th>
+                    <th rowspan="2">Aktual</th>
+                    <th colspan="2">Prediksi</th>
+                    <th colspan="2">MAPE</th>
+                </tr>
+                <tr>
+                    <th>ARIMA</th>
+                    <th>SES</th>
+                    <th>ARIMA</th>
+                    <th>SES</th>
+                </tr>
+                {% for val in data_test %}
+                <tr>
+                    <td>{{ val.date }}</td>
+                    <td>{{ val.amount }}</td>
+                    <td>{{ val.arima }}</td>
+                    <td>{{ val.ses }}</td>
+                    <td>{{ val.mape_arima }}</td>
+                    <td>{{ val.mape_ses }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <h2>Forecast 1 bulan ke depan</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered mb-3 align-middle text-center">
+                <tr>
+                    <th>Minggu</th>
+                    <th>ARIMA</th>
+                    <th>SES</th>
+                </tr>
+                {% for val in data_forecast %}
+                <tr>
+                    <td>{{ val.date }}</td>
+                    <td>{{ val.arima }}</td>
+                    <td>{{ val.ses }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
