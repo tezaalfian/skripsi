@@ -36,6 +36,7 @@ def result(request):
     arima_result = arima_model.fit()
     arima_forecast = arima_result.forecast(steps=4)
     arima_forecast = arima_forecast.rename('amount').astype(int).to_frame()
+    arima_forecast = pd.concat([arima_test[-1:], arima_forecast])
 
     # SES
     alpha = 0.35
@@ -54,6 +55,7 @@ def result(request):
     ses_result = ses_model.fit(smoothing_level=alpha)
     ses_forecast = ses_result.forecast(steps=4)
     ses_forecast = ses_forecast.rename('amount').astype(int).to_frame()
+    ses_forecast = pd.concat([ses_test[-1:], ses_forecast])
     # ploting arima test_forecast
     buffer = BytesIO()
     plt.figure(figsize=(12, 6))
@@ -85,7 +87,7 @@ def result(request):
             "mape_ses": round(mean_absolute_percentage_error([row['amount']], [ses_test.loc[index]['amount']]), 3)
         })
     data_forecast = []
-    for index, row in arima_forecast.iterrows():
+    for index, row in arima_forecast[1:].iterrows():
         data_forecast.append({
             "date": index.strftime("%b %Y") + ' Minggu ke-' + str(week_number_of_month(index)),
             "arima": row['amount'],
