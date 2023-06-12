@@ -25,4 +25,5 @@ urlpatterns = [
     path("input", views.inputData, name="inputData"),
     path("list", views.listData, name="listData"),
     path("delete/<int:id>", views.deleteData, name="deleteData"),
+    path("prediksi", views.prediksi, name="prediksi")
 ]

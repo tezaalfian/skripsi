@@ -138,3 +138,51 @@ def deleteData(request, id):
     Claim.objects.filter(id=id).delete()
     messages.success(request, "Data berhasil dihapus")
     return redirect('/list')
+
+def prediksi(request):
+    if request.GET.get("jumlah") and request.GET.get("p") and request.GET.get("alpha"):
+        arima_params = (int(request.GET.get("p")), int(request.GET.get("d")), int(request.GET.get("q")))
+        count = int(request.GET.get("jumlah"))
+        df = pd.DataFrame(list(Claim.objects.all().order_by('date').values('date', 'amount')))
+        df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
+        df = df.set_index('date')
+        df = df.resample('W-MON').sum()
+        # ARIMA
+        arima_model = ARIMA(df, order=arima_params)
+        arima_train = arima_model.fit()
+        arima_fc = arima_train.forecast(steps=count)
+        arima_fc = arima_fc.rename('amount').astype(int).to_frame()
+        # SES
+        alpha = float(request.GET.get("alpha"))
+        ses_model = SimpleExpSmoothing(df)
+        ses_result = ses_model.fit(smoothing_level=alpha)
+        ses_fc = ses_result.forecast(steps=count)
+        ses_fc = ses_fc.rename('amount').astype(int).to_frame()
+        # ploting arima_fc
+        buffer = BytesIO()
+        plt.figure(figsize=(12, 6))
+        plt.plot(arima_fc, label="Forecast ARIMA")
+        plt.plot(ses_fc, label="Forecast SES")
+        plt.title('Forecast')
+        plt.xlabel('Tanggal/Minggu')
+        plt.ylabel('Besar Klaim')
+        plt.legend()
+        plt.savefig(buffer, format='png')
+        plt.clf()
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        graph_fc = base64.b64encode(image_png)
+        graph_fc = graph_fc.decode('utf-8')
+        buffer.close()
+        data_fc = []
+        for index, row in arima_fc.iterrows():
+            data_fc.append({
+                "date": index.strftime("%b %Y") + ' Minggu ke-' + str(week_number_of_month(index)),
+                "arima": row['amount'],
+                "ses": ses_fc.loc[index]['amount']
+            })
+        return render(request, "prediksi.html", {
+            "graph_fc": graph_fc,
+            "data_fc": data_fc
+        })
+    return render(request, "prediksi.html")
