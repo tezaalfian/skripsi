@@ -35,12 +35,13 @@
                     <th>ARIMA</th>
                     <th>SES</th>
                 </tr>
+                {% load humanize %}
                 {% for val in data_test %}
                 <tr>
                     <td>{{ val.date }}</td>
-                    <td>{{ val.amount }}</td>
-                    <td>{{ val.arima }}</td>
-                    <td>{{ val.ses }}</td>
+                    <td>{{ val.amount|intcomma }}</td>
+                    <td>{{ val.arima|intcomma }}</td>
+                    <td>{{ val.ses|intcomma }}</td>
                     <td>{{ val.mape_arima }}</td>
                     <td>{{ val.mape_ses }}</td>
                 </tr>
@@ -60,8 +61,8 @@
                 {% for val in data_forecast %}
                 <tr>
                     <td>{{ val.date }}</td>
-                    <td>{{ val.arima }}</td>
-                    <td>{{ val.ses }}</td>
+                    <td>{{ val.arima|intcomma }}</td>
+                    <td>{{ val.ses|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </table>

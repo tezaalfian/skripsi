@@ -34,11 +34,12 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% load humanize %}
                     {% for data in datas %}
                     <tr>
                         <td>{{ data.id }}</td>
                         <td>{{ data.date }}</td>
-                        <td>{{ data.amount }}</td>
+                        <td>{{ data.amount|intcomma }}</td>
                         <td>
                             <a href="/delete/{{ data.id }}" class="btn btn-sm btn-danger">Delete</a>
                         </td>
