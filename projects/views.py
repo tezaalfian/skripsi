@@ -22,8 +22,12 @@ def result(request):
     df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
     df = df.set_index('date')
     df = df.resample('W-MON').sum()
+    # print(df.tail(10))
+    # return 0;
     # df_for_score = df.replace(0, np.nan).interpolate()
     # ARIMA
+    df_fc = df[-4:]
+    df = df[:-4]
     df_train = df[:-8]
     df_test = df[-8:]
     arima_params = (4, 0, 5)
@@ -54,8 +58,19 @@ def result(request):
     # forecast real data
     ses_model = SimpleExpSmoothing(df)
     ses_result = ses_model.fit(smoothing_level=alpha)
-    ses_forecast = ses_result.forecast(steps=4)
-    ses_forecast = ses_forecast.rename('amount').astype(int).to_frame()
+    # ses_forecast = ses_result.forecast(steps=4)
+    ses_fc = ses_result.forecast(steps=1)
+    ses_forecast = pd.DataFrame({
+        "amount": int(ses_fc[0])
+    }, index = ses_fc.index)
+    ses_fc = int(ses_fc[0])
+    for index, row in df_fc.iloc[:-1].iterrows():
+        ses_fc = (alpha * row['amount']) + ((1 - alpha) * ses_fc)
+        next_index = index + pd.DateOffset(weeks=1)
+        new = pd.DataFrame({
+            "amount": int(ses_fc)
+        }, index = [next_index])
+        ses_forecast = pd.concat([ses_forecast, new])
     ses_forecast = pd.concat([ses_test[-1:], ses_forecast])
     # ploting arima test_forecast
     buffer = BytesIO()
@@ -65,6 +80,7 @@ def result(request):
     plt.plot(ses_test, label="Forecast SES")
     plt.plot(arima_forecast, label="Forecast ARIMA 4 minggu ke depan")
     plt.plot(ses_forecast, label="Forecast SES 4 minggu ke depan")
+    plt.ylim(0, max(df_test['amount']) + 1000000)
     plt.title('Actual vs Forecast')
     plt.xlabel('Tanggal/Minggu')
     plt.ylabel('Besar Klaim')
@@ -91,7 +107,9 @@ def result(request):
             "arima": arima_test.loc[index]['amount'],
             "ses": ses_test.loc[index]['amount'],
             "mape_arima": mape_arima,
-            "mape_ses": mape_ses
+            "mape_ses": mape_ses,
+            "abs_arima": abs(row['amount'] - arima_test.loc[index]['amount']),
+            "abs_ses": abs(row['amount'] - ses_test.loc[index]['amount'])
         })
     data_forecast = []
     for index, row in arima_forecast[1:].iterrows():
@@ -118,7 +136,7 @@ def result(request):
 
 def importExcel(request):
     if request.method == "POST":
-        print(request.FILES["dataset"])
+        # print(request.FILES["dataset"])
         df = pd.read_excel(request.FILES['dataset'])
         df = df[['TANGGAL MASUK','TOTAL APPROVE']].dropna()
         df['TANGGAL MASUK'] = pd.to_datetime(df['TANGGAL MASUK'], format='%Y-%m-%d')
@@ -162,6 +180,9 @@ def prediksi(request):
         df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
         df = df.set_index('date')
         df = df.resample('W-MON').sum()
+        # extract last 4 week
+        df_fc = df[-count:]
+        df = df[:-count]
         # ARIMA
         arima_model = ARIMA(df, order=arima_params)
         arima_train = arima_model.fit()
@@ -171,13 +192,23 @@ def prediksi(request):
         alpha = float(request.GET.get("alpha"))
         ses_model = SimpleExpSmoothing(df)
         ses_result = ses_model.fit(smoothing_level=alpha)
-        ses_fc = ses_result.forecast(steps=count)
-        ses_fc = ses_fc.rename('amount').astype(int).to_frame()
+        ses_fc = ses_result.forecast(steps=1)
+        ses_forecast = pd.DataFrame({
+            "amount": int(ses_fc[0])
+        }, index = ses_fc.index)
+        ses_fc = int(ses_fc[0])
+        for index, row in df_fc.iloc[:-1].iterrows():
+            ses_fc = (alpha * row['amount']) + ((1 - alpha) * ses_fc)
+            next_index = index + pd.DateOffset(weeks=1)
+            new = pd.DataFrame({
+                "amount": int(ses_fc)
+            }, index = [next_index])
+            ses_forecast = pd.concat([ses_forecast, new])
         # ploting arima_fc
         buffer = BytesIO()
         plt.figure(figsize=(12, 6))
         plt.plot(arima_fc, label="Forecast ARIMA")
-        plt.plot(ses_fc, label="Forecast SES")
+        plt.plot(ses_forecast, label="Forecast SES")
         plt.title('Forecast')
         plt.xlabel('Tanggal/Minggu')
         plt.ylabel('Besar Klaim')
@@ -194,7 +225,7 @@ def prediksi(request):
             data_fc.append({
                 "date": index.strftime("%b %Y") + ' Minggu ke-' + str(week_number_of_month(index)),
                 "arima": row['amount'],
-                "ses": ses_fc.loc[index]['amount']
+                "ses": ses_forecast.loc[index]['amount']
             })
         return render(request, "prediksi.html", {
             "graph_fc": graph_fc,

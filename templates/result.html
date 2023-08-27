@@ -27,6 +27,7 @@
                     <th rowspan="2">Minggu</th>
                     <th rowspan="2">Aktual</th>
                     <th colspan="2">Prediksi</th>
+                    <!-- <th colspan="2">Selisih</th> -->
                     <th colspan="2">MAPE</th>
                 </tr>
                 <tr>
@@ -34,6 +35,8 @@
                     <th>SES</th>
                     <th>ARIMA</th>
                     <th>SES</th>
+                    <!-- <th>ARIMA</th>
+                    <th>SES</th> -->
                 </tr>
                 {% load humanize %}
                 {% for val in data_test %}
@@ -42,6 +45,8 @@
                     <td>{{ val.amount|intcomma }}</td>
                     <td>{{ val.arima|intcomma }}</td>
                     <td>{{ val.ses|intcomma }}</td>
+                    <!-- <td>{{ val.abs_arima|intcomma }}</td>
+                    <td>{{ val.abs_ses|intcomma }}</td> -->
                     <td>{{ val.mape_arima }}</td>
                     <td>{{ val.mape_ses }}</td>
                 </tr>
